@@ -1,0 +1,488 @@
+
+users(user_id(primary key), email_id, phone_no, password, firstName, lastName, city, dob, gender, age(derieved));
+posts(post_id(primary key), posted_user_id(foreign key), post_date, post_content)
+pages(page_id(primary key), page_name, page_content)
+friends(user_id, friend_id) composite key(user_id, friend_id) both are foreign key
+post_comments(comment_id(primary key), post_id(fk), commented_date, comment_content, commented_user_id(fk))
+page_likes(page_id, page_user_id) composite key(page_id, page_user_id) both are foreign key
+post_likes(post_id, liked_user_id) composite key(post_id, liked_user_id) both are foreign key
+post_shares(post_id, shared_user_id) composite key(post_id, shared_user_id) both are foreign keys
+comments_like(comment_id, commented_user_id) composite key(comment_id, commented_user_id) both are foreign keys
+
+mysql> create table users(
+    -> user_id int auto_increment,
+    -> email_id varchar(25) not null,
+    -> phone_no char(10) not null,
+    -> password varchar(20) not null,
+    -> firstName varchar(20) not null,
+    -> lastName varchar(20) not null,
+    -> city varchar(20),
+    -> dob date not null,
+    -> gender char(10),
+    -> primary key(user_id));
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> alter table users auto_increment = 1;
+Query OK, 0 rows affected (0.02 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> alter table users add column age int generated always as (timestampdiff(year, dob, '2021-11-28'));
+Query OK, 0 rows affected (0.10 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> create table posts(
+    -> post_id int auto_increment,
+    -> posted_user_id int not null,
+    -> post_date date not null,
+    -> post_content varchar(50) not null,
+    -> primary key(post_id)
+    -> );
+    -> //
+Query OK, 0 rows affected (0.10 sec)
+
+mysql> alter table posts auto_increment = 1;
+Query OK, 0 rows affected (0.06 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> alter table posts add constraint post_user_fk foreign key (posted_user_id) references users(user_id) on delete cascade;
+Query OK, 0 rows affected (0.08 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> create table pages(
+    -> page_id int auto_increment,
+    -> page_name varchar(20) not null,
+    -> page_content varchar(50) not null,
+    -> primary key(page_id));
+Query OK, 0 rows affected (0.07 sec)
+
+mysql> alter table pages auto_increment = 1;
+Query OK, 0 rows affected (0.01 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> create table friends(
+    -> user_id int,
+    -> friend_id int,
+    -> primary key(user_id, friend_id));
+Query OK, 0 rows affected (0.06 sec)
+
+mysql> alter table friends add constraint user_id_fk foreign key(user_id) references users(user_id) on delete cascade on update cascade;
+Query OK, 0 rows affected (0.08 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> alter table friends add constraint friend_id_fk foreign key(friend_id) references users(user_id) on delete cascade;
+Query OK, 0 rows affected (0.12 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> create table post_comments(
+    -> comment_id int auto_increment,
+    -> post_id int not null,
+    -> commented_date date,
+    -> coment_content varchar(50),
+    -> commented_user_id int not null,
+    -> primary key(comment_id));
+Query OK, 0 rows affected (0.07 sec)
+
+mysql> alter table post_comments auto_increment = 1;
+Query OK, 0 rows affected (0.06 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> alter table post_comments add constraint commented_post_id_fk foreign key(post_id) references posts(post_id) on delete cascade;
+Query OK, 0 rows affected (0.14 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> alter table post_comments add constraint commented_user_id_fk foreign key(commented_user_id) references users(user_id) on delete cascade;
+Query OK, 0 rows affected (0.11 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> CREATE TABLE page_likes(
+    -> page_id int,
+    -> page_user_id int,
+    -> primary key(page_id, page_user_id));
+Query OK, 0 rows affected (0.07 sec)
+
+mysql> alter table page_likes add constraint page_id_fk foreign key(page_id) references pages(page_id) on delete cascade;
+Query OK, 0 rows affected (0.12 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> alter table page_likes add constraint page_user_id_fk foreign key(page_user_id) references users(user_id) on delete cascade;
+Query OK, 0 rows affected (0.13 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> create table post_likes(
+    -> post_id int,
+    -> liked_user_id int,
+    -> primary key(post_id, liked_user_id));
+Query OK, 0 rows affected (0.09 sec)
+
+mysql> alter table post_likes add constraint liked_post_id_fk foreign key(post_id) references posts(post_id) on delete cascade;
+Query OK, 0 rows affected (0.10 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> alter table post_likes add constraint liked_user_id_fk foreign key(liked_user_id) references users(user_id) on delete cascade;
+Query OK, 0 rows affected (0.07 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> create table post_shares(
+    -> post_id int,
+    -> shared_user_id int,
+    -> primary key(post_id, shared_user_id));
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> alter table post_shares add constraint shared_post_id_fk foreign key(post_id) references posts(post_id) on delete cascade;
+Query OK, 0 rows affected (0.12 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> alter table post_shares add constraint shared_user_id_fk foreign key(shared_user_id) references users(user_id) on delete cascade;
+Query OK, 0 rows affected (0.13 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+
+mysql> create function numberOfFriends(emailId varchar(25))
+    -> returns int
+    -> deterministic
+    -> begin
+    -> declare count int default 0;
+    -> declare id int;
+    -> select user_id into id from users where users.email_id = emailId;
+    -> select count(*) from friends where friends.friend_id = id into count;
+    -> return count;
+    -> end; //
+Query OK, 0 rows affected (0.05 sec)
+
+mysql> create function numberOfPosts(emailId varchar(25))
+    -> returns int
+    -> deterministic
+    -> begin
+    -> declare count int default 0;
+    -> declare id int;
+    -> select user_id into id from users where users.email_id = emailId;
+    -> select count(*) from posts where posts.posted_user_id = id into count;
+    -> return count;
+    -> end; //
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> create procedure number_of_friends()
+    -> begin
+    -> select user_id, count(distinct friend_id) from friends group by user_id;
+    -> end; //
+Query OK, 0 rows affected (0.05 sec)
+
+mysql> create function number_of_comments(p_id int)
+    -> returns int
+    -> deterministic
+    -> begin
+    -> declare count int default 0;
+    -> select count(*) from post_comments where post_comments.post_id = p_id into count;
+    -> return count;
+    -> end; //
+Query OK, 0 rows affected (0.05 sec)
+
+mysql> create view full_posts_details as
+    -> select 
+    -> po.post_id as Post_Id,
+    -> po.posted_user_id as Posted_User_Id,
+    -> (Select u.firstName from users u where (u.user_id = po.posted_user_id)) as Posted_Users_name,
+    -> (Select u.age from users u where (u.user_id = po.posted_user_id)) as Posted_Users_age,
+    -> po.post_date as Post_Date,
+    -> po.post_content as Post_Content,
+    -> (Select count(0) from post_likes pl where(pl.post_id = po.post_id)) as number_of_likes,
+    -> (Select count(0) from post_shares ps where(ps.post_id = po.post_id)) as number_of_shares,
+    -> (Select count(0) from post_comments pc where(pc.post_id = po.post_id)) as number_of_comments
+    -> from posts po
+    -> //
+Query OK, 0 rows affected (0.07 sec)
+
+mysql> create view full_profile_of_users as
+    -> select u.user_id as User_Id,
+    -> u.email_id as Email_Id,
+    -> u.firstName as First_Name,
+    -> u.dob as DOB,
+    -> (Select count(0) from friends fr where(fr.user_id = u.user_id)) as number_of_friends,
+    -> (Select count(0) from page_likes pg where (pg.page_user_id = u.user_id)) as number_of_pages,
+    -> (Select count(0) from posts po where(po.posted_user_id = u.user_id)) as number_of_posts
+    -> from users u
+    -> //
+Query OK, 0 rows affected (0.05 sec)
+
+mysql> insert into users (email_id,phone_no,password,firstName,lastName,city,dob,gender) values ('dna@gmail.com','7895546456','dna123','dinesh','akolkar','bangolore',DATE '2001-04-19','M');
+    -> //
+Query OK, 1 row affected (0.01 sec)
+
+mysql> insert into users (email_id,phone_no,password,firstName,lastName,city,dob,gender) values ('hbhq@gmail.com','9325176456','hbhq89','bhavana','garg','parbhani',DATE '2000-10-12','F');//
+Query OK, 1 row affected (0.04 sec)
+
+mysql> delimiter ;
+mysql> insert into users (email_id,phone_no,password,firstName,lastName,city,dob,gender) values ('trea@gmail.com','8221744556','sfred89','tara','jain','amravati',DATE '2004-01-30','F');
+Query OK, 1 row affected (0.04 sec)
+
+mysql> insert into users (email_id,phone_no,password,firstName,lastName,city,dob,gender) values ('hyffc@gmail.com','6771744556','hyffc89','Shiny','kapoor','purna',DATE '2001-08-22','F');
+Query OK, 1 row affected (0.04 sec)
+
+mysql> insert into users (email_id,phone_no,password,firstName,lastName,city,dob,gender) values ('ksk@gmail.com','9721747556','ksk89','karan','shah','nagpur',DATE '2006-04-12','M');
+Query OK, 1 row affected (0.01 sec)
+
+mysql> select * from users;
++---------+-----------------+------------+----------+-----------+----------+-----------+------------+--------+------+
+| user_id | email_id        | phone_no   | password | firstName | lastName | city      | dob        | gender | age  |
++---------+-----------------+------------+----------+-----------+----------+-----------+------------+--------+------+
+|       1 | dna@gmail.com   | 7895546456 | dna123   | dinesh    | akolkar  | bangolore | 2001-04-19 | M      | NULL |
+|       2 | hbhq@gmail.com  | 9325176456 | hbhq89   | bhavana   | garg     | parbhani  | 2000-10-12 | F      | NULL |
+|       3 | trea@gmail.com  | 8221744556 | sfred89  | tara      | jain     | amravati  | 2004-01-30 | F      | NULL |
+|       4 | hyffc@gmail.com | 6771744556 | hyffc89  | Shiny     | kapoor   | purna     | 2001-08-22 | F      | NULL |
+|       5 | ksk@gmail.com   | 9721747556 | ksk89    | karan     | shah     | nagpur    | 2006-04-12 | M      | NULL |
++---------+-----------------+------------+----------+-----------+----------+-----------+------------+--------+------+
+5 rows in set (0.00 sec)
+
+mysql> insert into friends values(1,2);
+Query OK, 1 row affected (0.04 sec)
+
+mysql> insert into friends values(1,3);insert into friends values(1,4);insert into friends values(2,3);insert into friends values(5,3);insert into friends values(4,3);insert into friends values(1,5);
+Query OK, 1 row affected (0.04 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+mysql> select * from friends;
++---------+-----------+
+| user_id | friend_id |
++---------+-----------+
+|       1 |         2 |
+|       1 |         3 |
+|       2 |         3 |
+|       4 |         3 |
+|       5 |         3 |
+|       1 |         4 |
+|       1 |         5 |
++---------+-----------+
+7 rows in set (0.00 sec)
+
+mysql> insert into pages(Page_Name,Page_Content) values("first name","first content");insert into pages(Page_Name,Page_Content) values("second name","second content");insert into pages(Page_Name,Page_Content) values("third name","third content");insert into pages(Page_Name,Page_Content) values("fourth name","fourth content");insert into pages(Page_Name,Page_Content) values("fifth name","fifth content");insert into pages(Page_Name,Page_Content) values("sixth name","sixth content");insert into pages(Page_Name,Page_Content) values("seventh name","seventh content");select * from pages;
+Query OK, 1 row affected (0.04 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
++---------+--------------+-----------------+
+| page_id | page_name    | page_content    |
++---------+--------------+-----------------+
+|       1 | first name   | first content   |
+|       2 | second name  | second content  |
+|       3 | third name   | third content   |
+|       4 | fourth name  | fourth content  |
+|       5 | fifth name   | fifth content   |
+|       6 | sixth name   | sixth content   |
+|       7 | seventh name | seventh content |
++---------+--------------+-----------------+
+7 rows in set (0.00 sec)
+
+mysql> insert into page_likes values(1,1);insert into page_likes values(3,1);insert into page_likes values(4,2);insert into page_likes values(5,4);insert into page_likes values(7,2);insert into page_likes values(3,3);insert into page_likes values(2,1);insert into page_likes values(1,5);select * from page_likes;
+Query OK, 1 row affected (0.01 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
++---------+--------------+
+| page_id | page_user_id |
++---------+--------------+
+|       1 |            1 |
+|       2 |            1 |
+|       3 |            1 |
+|       4 |            2 |
+|       7 |            2 |
+|       3 |            3 |
+|       5 |            4 |
+|       1 |            5 |
++---------+--------------+
+8 rows in set (0.00 sec)
+
+mysql> insert into posts(Posted_User_ID,Post_Date,Post_Content) values(2,DATE '2020-09-19','first image');insert into posts(Posted_User_ID,Post_Date,Post_Content) values(3,DATE '2019-08-20','second image');insert into posts(Posted_User_ID,Post_Date,Post_Content) values(4,DATE '2018-07-21','fourth image');insert into posts(Posted_User_ID,Post_Date,Post_Content) values(5,DATE '2017-06-22','fifth image');insert into posts(Posted_User_ID,Post_Date,Post_Content) values(1,DATE '2016-05-23','sixth image');insert into posts(Posted_User_ID,Post_Date,Post_Content) values(2,DATE '2015-04-24','seventh image');insert into posts(Posted_User_ID,Post_Date,Post_Content) values(3,DATE '2014-03-25','eighth image');insert into posts(Posted_User_ID,Post_Date,Post_Content) values(4,DATE '2013-02-26','nineth image');select * from posts;
+Query OK, 1 row affected (0.04 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.01 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
++---------+----------------+------------+---------------+
+| post_id | posted_user_id | post_date  | post_content  |
++---------+----------------+------------+---------------+
+|       1 |              2 | 2020-09-19 | first image   |
+|       2 |              3 | 2019-08-20 | second image  |
+|       3 |              4 | 2018-07-21 | fourth image  |
+|       4 |              5 | 2017-06-22 | fifth image   |
+|       5 |              1 | 2016-05-23 | sixth image   |
+|       6 |              2 | 2015-04-24 | seventh image |
+|       7 |              3 | 2014-03-25 | eighth image  |
+|       8 |              4 | 2013-02-26 | nineth image  |
++---------+----------------+------------+---------------+
+8 rows in set (0.00 sec)
+
+
+mysql> insert into post_comments(Post_id,Commented_Date,Coment_Content,Commented_User_ID) values(4,DATE '2020-05-14','hiiii .. ',3); insert into post_comments(Post_id,Commented_Date,Coment_Content,Commented_User_ID) values(3,DATE '2019-03-23','hooo .. ',4); insert into post_comments(Post_id,Commented_Date,Coment_Content,Commented_User_ID) values(2,DATE '2018-04-22','okkkk .. ',5); insert into post_comments(Post_id,Commented_Date,Coment_Content,Commented_User_ID) values(4,DATE '2017-05-11','nooop .. ',2);insert into post_comments(Post_id,Commented_Date,Coment_Content,Commented_User_ID) values(5,DATE '2014-06-15','nice .. ',3);insert into post_comments(Post_id,Commented_Date,Coment_Content,Commented_User_ID) values(3,DATE '2013-07-21','good .. ',1);insert into post_comments(Post_id,Commented_Date,Coment_Content,Commented_User_ID) values(2,DATE '2012-08-17','very good..',1);insert into post_comments(Post_id,Commented_Date,Coment_Content,Commented_User_ID) values(3,DATE '2011-09-01','super .. ',4);select * from post_comments;
+Query OK, 1 row affected (0.04 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
++------------+---------+----------------+----------------+-------------------+
+| comment_id | post_id | commented_date | coment_content | commented_user_id |
++------------+---------+----------------+----------------+-------------------+
+|          1 |       4 | 2020-05-14     | hiiii ..       |                 3 |
+|          2 |       3 | 2019-03-23     | hooo ..        |                 4 |
+|          3 |       2 | 2018-04-22     | okkkk ..       |                 5 |
+|          4 |       4 | 2017-05-11     | nooop ..       |                 2 |
+|          5 |       5 | 2014-06-15     | nice ..        |                 3 |
+|          6 |       3 | 2013-07-21     | good ..        |                 1 |
+|          7 |       2 | 2012-08-17     | very good..    |                 1 |
+|          8 |       3 | 2011-09-01     | super ..       |                 4 |
++------------+---------+----------------+----------------+-------------------+
+8 rows in set (0.00 sec)
+
+
+
+mysql> insert into post_likes values(1,2);insert into post_likes values(2,5);insert into post_likes values(3,1);insert into post_likes values(4,3);insert into post_likes values(5,4);insert into post_likes values(3,4);insert into post_likes values(2,4);insert into post_likes values(1,4);select * from post_likes;insert into post_shares values(1,2);insert into post_shares values(4,5);insert into post_shares values(3,3);insert into post_shares values(2,4);insert into post_shares values(5,3);insert into post_shares values(5,2);insert into post_shares values(6,1);insert into post_shares values(6,3);select * from post_shares;insert into comments_like values(2,1);insert into comments_like values(4,2);insert into comments_like values(3,3);insert into comments_like values(6,4);insert into comments_like values(2,5);insert into comments_like values(3,4);insert into comments_like values(4,3);insert into comments_like values(5,2);insert into comments_like values(6,1);select * from comments_like;
+Query OK, 1 row affected (0.04 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
++---------+---------------+
+| post_id | liked_user_id |
++---------+---------------+
+|       3 |             1 |
+|       1 |             2 |
+|       4 |             3 |
+|       1 |             4 |
+|       2 |             4 |
+|       3 |             4 |
+|       5 |             4 |
+|       2 |             5 |
++---------+---------------+
+8 rows in set (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
++---------+----------------+
+| post_id | shared_user_id |
++---------+----------------+
+|       6 |              1 |
+|       1 |              2 |
+|       5 |              2 |
+|       3 |              3 |
+|       5 |              3 |
+|       6 |              3 |
+|       2 |              4 |
+|       4 |              5 |
++---------+----------------+
+8 rows in set (0.00 sec)
+
+
+Query OK, 1 row affected (0.01 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
++------------+-----------------------+
+| comment_id | comment_liked_user_id |
++------------+-----------------------+
+|          2 |                     1 |
+|          2 |                     5 |
+|          3 |                     3 |
+|          3 |                     4 |
+|          4 |                     2 |
+|          4 |                     3 |
+|          5 |                     2 |
+|          6 |                     1 |
+|          6 |                     4 |
++------------+-----------------------+
+9 rows in set (0.00 sec)
+
+
+
+
+
